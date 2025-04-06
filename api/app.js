@@ -1,10 +1,17 @@
 // app.js
 const express = require("express");
 const cors = require("cors");
+const jobRoutes = require('./routes/jobRoutes');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use('/job', jobRoutes);
+
+//TESTING
+app.get('/test', (req, res) => {
+  res.json({ message: 'Server is running!' });
+});
 
 // Dummy credentials from assignment 8 (or from your DB)
 const USERS = [

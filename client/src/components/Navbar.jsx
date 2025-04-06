@@ -1,16 +1,17 @@
+// Navbar.jsx
 import React from "react";
-import { AppBar, Toolbar, Typography, Button } from "@mui/material";
+import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../store/slices/authSlice';
 
 function Navbar() {
     const navigate = useNavigate();
-
-    // For demonstration, we consider that if "loggedIn" in localStorage is "true", user is logged in
-    const isLoggedIn = localStorage.getItem("loggedIn") === "true";
+    const dispatch = useDispatch();
+    const { user } = useSelector((state) => state.auth);
 
     const handleLogout = () => {
-        // Clear session data
-        localStorage.removeItem("loggedIn");
+        dispatch(logout());
         navigate("/login");
     };
 
@@ -21,14 +22,12 @@ function Navbar() {
                     Job Portal
                 </Typography>
 
+                {/* Common navigation links for all users */}
                 <Button color="inherit" component={Link} to="/">
                     Home
                 </Button>
                 <Button color="inherit" component={Link} to="/about">
                     About
-                </Button>
-                <Button color="inherit" component={Link} to="/jobs">
-                    Jobs
                 </Button>
                 <Button color="inherit" component={Link} to="/contact">
                     Contact
@@ -37,14 +36,43 @@ function Navbar() {
                     Companies
                 </Button>
 
-                {!isLoggedIn ? (
-                    <Button color="inherit" component={Link} to="/login">
-                        Login
-                    </Button>
+                {/* Conditional navigation based on authentication and user role */}
+                {user ? (
+                    <>
+                        {/* Admin-specific links */}
+                        {user.type === 'admin' && (
+                            <Box display="flex">
+                                <Button color="inherit" component={Link} to="/admin/employees">
+                                    Employees
+                                </Button>
+                                <Button color="inherit" component={Link} to="/admin/add-job">
+                                    Add Job
+                                </Button>
+                            </Box>
+                        )}
+
+                        {/* Employee-specific links */}
+                        {user.type === 'employee' && (
+                            <Button color="inherit" component={Link} to="/jobs">
+                                Jobs
+                            </Button>
+                        )}
+
+                        {/* Logout button */}
+                        <Button color="inherit" onClick={handleLogout}>
+                            Logout ({user.fullName})
+                        </Button>
+                    </>
                 ) : (
-                    <Button color="inherit" onClick={handleLogout}>
-                        Logout
-                    </Button>
+                    <>
+                        {/* Authentication links for non-logged-in users */}
+                        <Button color="inherit" component={Link} to="/login">
+                            Login
+                        </Button>
+                        <Button color="inherit" component={Link} to="/register">
+                            Register
+                        </Button>
+                    </>
                 )}
             </Toolbar>
         </AppBar>
